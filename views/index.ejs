@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <title>SeeOhTwo</title>
+        <script src="/js/jquery-3.5.1.min.js"></script>
+        <script type="text/javascript">
+            setInterval( update , 5000 )
+
+            function update() {
+                $.ajax({
+				url: '/recentstats',
+				type: 'GET',
+				success: function (data) {
+                    $('.last6').html("<b>"+data.last6avg+"</b> / "+data.min6time)
+                    $('.last60').html("<b>"+data.last60avg+"</b> / "+data.min60time)
+                    $('.servertime').html("<b>Servertime:</b> " + data.servertime)
+				}
+			});  
+            }
+        </script>
+    </head>
+    <body onload="update()">
+        <h2>System Status</h2>
+        <p><b>Logging On:</b> <%= bLogDataOn %> <a href="/togglebLogDataOn">[Toggle Logging]</a></p>
+        <p class="servertime"></p>
+        <p><a href="/getcsv">[Download CSV]</a></p>
+        <h2>Latest Readings</h2>
+        <h3>Avg of Last 6 Readings / Timestamp of Oldest Record</h3>
+        <p class="last6"></p>
+        <h3>Avg of Last 60 Readings / Timestamp of Oldest Record</h3>
+        <p class="last60"></p>
+        <h2>Location</h2>
+        <table class="table">
+            <tr>
+                 <th>id</th>
+                 <th>Location</th>
+                 <th>Current Location T/F</th>
+                 <th>Set Location</th>
+            </tr>
+            
+            <% if (locations.length>0) {		
+                for(var i=0; i < locations.length; i++) { %>
+               <tr>
+                 <td><%= locations[i].location_id %></td>
+                 <td><%= locations[i].description %></td>
+                 <td><%if (locations[i].currentlocation == 1)  { %>
+                    True
+                    <% } %></td>
+                 <td><a href="/setlocation?locationid=<%= locations[i].location_id %>">Set</a></td>
+                 <td></td>
+               </tr>
+            <% 		}}
+            %>
+        </table>
+        <h2>Add Location</h2>
+            <form method="POST" action="/addlocation">
+            <input id="addlocation" name="addlocation" type="text">
+
+            <!-- Button -->
+            <button type="submit" >Add Location</button>
+            </form>
+        <h2>Purge DB</h2>
+        <p><a href="/purgedb">[Purge DB]</a></p>
+    </body>
+</html>
