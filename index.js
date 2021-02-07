@@ -7,6 +7,7 @@ const Readline = require('@serialport/parser-readline')
 const { parse } = require('json2csv');
 var sqlite3 = require('sqlite3').verbose();
 var app = express()
+const { exec } = require("child_process");
 
 var deviceport; 
 var device;
@@ -123,6 +124,22 @@ app.get('/togglebLogDataOn', function(req, res){
     }
 	res.redirect('/');
 });
+
+app.get('/shutdown', function(req, res){
+    exec("shutdown now", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });
+    res.send("Shutting Down - Turn off Pi in 1 min.  For shutdown to work, suid bit must be set on shutdown by running as root: chmod 4755 /sbin/shutdown")
+});
+
 
 app.use(express.static('public'))
 
