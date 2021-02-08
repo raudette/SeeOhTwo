@@ -88,22 +88,6 @@ function parseJSONSafely(str) {
 
 app.get('/', function(req, res){	
 
-/*    strQuery= "select avg(co2) from seeohtwo " + limit;
-	//console.log(strQuery);
-
-	db.all(strQuery, function(err,rows) {
-		res.render('plates.ejs', {
-			bStreamMode: bStreamMode,
-			bCaptureOn: bCaptureOn,
-			bGPSOn: bGPSOn,
-			iStreamSensorMode: iStreamSensorMode,
-			plates: rows,
-			topid: topid,
-			bottomid: bottomid,
-			includenomatch: includenomatch
-		});
-	});
-*/
     strQuery= "select location_id, case when location_id = "+location_id+" then 1 else 0 end \"currentlocation\", description from location;"
 
 
@@ -173,6 +157,13 @@ app.get('/setlocation', function(req, res){
             if (templocationid<0) {iStreamSensorMode=0;}
             else {location_id=templocationid;}
             }
+        //tell sensor we've changed locations, recalibrate for new humidity/temperature
+        device.write('h', function(err) {
+            if (err) {
+              return console.log('Error on write: ', err.message)
+            }
+            console.log('Sent humidity calibration request')
+          })
     }
 	res.redirect('/');
 });
