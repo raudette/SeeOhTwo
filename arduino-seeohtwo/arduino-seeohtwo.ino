@@ -20,6 +20,14 @@
 #include "SparkFun_SHTC3.h" // Click here to get the library: http://librarymanager/All#SparkFun_SHTC3
 #include <Wire.h>
 
+//LED Indicators
+#define greenone 5
+#define greentwo 0
+#define yellowone 4
+#define yellowtwo 13
+#define redone 16
+#define redtwo 15
+
 SGP30 mySensor; //create an instance of the SGP30 class
 SHTC3 humiditySensor; //create an instance of the SHTC3 class
 long t1, t2;
@@ -33,6 +41,8 @@ float humidity;
 float temperature;
 double absHumidity;
 
+boolean bBootBlink = false;
+
 void setup() {
   Serial.begin(9600);
   Wire.begin();
@@ -42,6 +52,13 @@ void setup() {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
+
+  pinMode(greenone, OUTPUT);
+  pinMode(greentwo, OUTPUT);
+  pinMode(yellowone, OUTPUT);
+  pinMode(yellowtwo, OUTPUT);
+  pinMode(redone, OUTPUT);
+  pinMode(redtwo, OUTPUT);
 
   //Initialize the humidity sensor and ping it
   humiditySensor.begin();
@@ -66,10 +83,29 @@ void setup() {
 
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  //lets just flush  
+  //as the device calibrates - lets just flush
+  //And... let's play with the lights for a fun boot sequence  
   int i;
   for (i = 1; i < 16; i++)
   {
+    if (bBootBlink==true) {
+      digitalWrite(greenone, LOW);
+      digitalWrite(greentwo, HIGH);
+      digitalWrite(yellowone, LOW);
+      digitalWrite(yellowtwo, HIGH);
+      digitalWrite(redone, LOW);
+      digitalWrite(redtwo, HIGH);   
+      bBootBlink = false;  
+    }
+    else {
+      digitalWrite(greenone, HIGH);
+      digitalWrite(greentwo, LOW);
+      digitalWrite(yellowone, HIGH);
+      digitalWrite(yellowtwo, LOW);
+      digitalWrite(redone, HIGH);
+      digitalWrite(redtwo, LOW);   
+      bBootBlink = true;  
+    }
      mySensor.measureAirQuality();
      delay(1000);
   }
@@ -91,6 +127,7 @@ void loop() {
   {
     t1 = millis();  //measure CO2 and TVOC levels
     mySensor.measureAirQuality();
+    setindicator(mySensor.CO2);
     Serial.print("{ \"co2\":");
     Serial.print(mySensor.CO2);
     Serial.print(", \"voc\":");
@@ -145,4 +182,21 @@ uint16_t doubleToFixedPoint( double number) {
   double number2 = number * power;
   uint16_t value = floor(number2 + 0.5);
   return value;
+}
+
+void setindicator(uint16_t co2levels) {
+  digitalWrite(greenone, LOW);
+  digitalWrite(greentwo, LOW);
+  digitalWrite(yellowone, LOW);
+  digitalWrite(yellowtwo, LOW);
+  digitalWrite(redone, LOW);
+  digitalWrite(redtwo, LOW);
+  
+  if (co2levels<=400) {digitalWrite(greenone, HIGH);}
+  if ((co2levels>400)&&(co2levels<600)) {digitalWrite(greentwo, HIGH);}
+  if ((co2levels>=600)&&(co2levels<800)) {digitalWrite(yellowone, HIGH);}
+  if ((co2levels>=800)&&(co2levels<1000)) {digitalWrite(yellowtwo, HIGH);}
+  if ((co2levels>=1000)&&(co2levels<1200)) {digitalWrite(redone, HIGH);}
+  if (co2levels>1200) {digitalWrite(redtwo, HIGH);}
+
 }
