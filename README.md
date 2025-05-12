@@ -1,7 +1,7 @@
 # SeeOhTwo
 A datalogger intended for measuring equivalent CO2 to compare "air freshness" in different spaces.  
 
-For more information about this project, see [https://articles.hotelexistence.ca/posts/inexpensivesensorsproxycovidrisk/](https://articles.hotelexistence.ca/posts/inexpensivesensorsproxycovidrisk/).
+For more information about this project, see [https://www.hotelexistence.ca/inexpensivesensorsproxycovidrisk/](https://www.hotelexistence.ca/inexpensivesensorsproxycovidrisk/).
 
 The data logger is implemented in [NodeJS](https://nodejs.org/en/) and I'm using the Adafruit SHTC3 Humidity & Temperature breakout board and the Adafruit SGP30 gas sensor breakout board on the Arduino platform.
 
